@@ -3,18 +3,19 @@ import dotenv from "dotenv";
 dotenv.config();
 import { connectDB } from "./config/db-connection";
 import { authRouter } from "./routes/auth/auth.routes";
+import cookieparser from 'cookie-parser';
 
 const app: Application = express();
 const PORT = process.env.PORT || 4000;
 
 // =========== Middleware =========== //
+app.use(cookieparser());
 app.use(express.json());
-
+``
 // =========== Routes =========== //
 app.use('/auth', authRouter);
 
 app.get('/', (req: Request, res: Response) => {
-
     res.send('Hello World!');
 })
 
