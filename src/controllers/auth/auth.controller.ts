@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import { User } from "../../models/user";
+import { IUser } from "../../types/user";
 import * as Validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -88,7 +89,8 @@ export const login = async (req: Request, res: Response) => {
         }
         const token = jwt.sign({
             userId: isUserExist._id,
-            email: isUserExist.email
+            email: isUserExist.email,
+            role: isUserExist.role
         }, process.env.JWT_SECRET as string, {
             expiresIn: '7d'
         });
@@ -117,7 +119,47 @@ export const login = async (req: Request, res: Response) => {
 
 export const logout = (req: Request, res: Response) => {
     try {
+        res.cookie('token', '', {
+            httpOnly: true,
+            expires: new Date(Date.now())
+        })
+        return res.json({
+            success: true,
+            message: "User logged out successfully"
+        });
     } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        })
+    }
+}
 
+
+export const getProfile = async (req: Request, res: Response) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ success: false, message: 'Not authenticated' });
+        }
+
+        const { _id } = req.user as IUser;
+        const isUserExist = await User.findById(_id);
+        if (!isUserExist) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            })
+        }
+        return res.status(200).json({
+            success: true,
+            message: 'User profile fetched successfully',
+            user: isUserExist
+        })
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        })
     }
 }
