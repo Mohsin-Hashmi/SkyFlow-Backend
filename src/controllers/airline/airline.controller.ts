@@ -5,17 +5,24 @@ export const createAirline = async (req: Request, res: Response) => {
     try {
         const { name, code, logo, country, contactEmail, contactPhone, address, isActive } = req.body;
         const createdBy = req.user?._id;
+        const createdByRole = req.user?.role;
+        if (createdByRole !== 'airlineOwner') {
+            return res.status(403).json({
+                success: false,
+                message: "Only airline owners can create airlines"
+            });
+        }
         const phoneRegex = /^\+?[1-9]\d{1,14}$/;
         const addressRegex = /^[a-zA-Z0-9\s,'-]*$/;
 
-        if(!createdBy) {
+        if (!createdBy) {
             return res.status(400).json({
                 success: false,
                 message: "User ID is required to create an airline"
             });
         }
         const isUserExist = await User.findById(createdBy).lean();
-        if(!isUserExist) {
+        if (!isUserExist) {
             return res.status(404).json({
                 success: false,
                 message: "User not found"
@@ -56,7 +63,8 @@ export const createAirline = async (req: Request, res: Response) => {
         return res.status(201).json({
             success: true,
             message: "Airline created successfully",
-            airline: newAirline
+            airline: newAirline,
+            airlineOwner: isUserExist.firstName + " " + isUserExist.lastName
         })
     } catch (error) {
         return res.status(500).json({
@@ -103,7 +111,48 @@ export const getAirlines = async (req: Request, res: Response) => {
 
 export const getAirlineById = async (req: Request, res: Response) => {
     try {
+        const airLinesOwner = req.user?._id;
+        const airlineId = req.params.id;
+        if (!airLinesOwner) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required to fetch airline"
+            })
+        }
 
+        const isOwnerExist = await User.findById(airLinesOwner).lean();
+        if(!isOwnerExist) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            })
+        }
+
+        if(!airlineId) {
+            return res.status(400).json({
+                success: false,
+                message: "Airline ID is required to fetch airline"
+            })
+        }
+        const isAirlineExist = await Airline.findById(airlineId).lean();
+        if(!isAirlineExist){
+            return res.status(404).json({
+                success: false,
+                message : "Airline not found"
+            })
+        }
+        if(isAirlineExist.createdBy.toString() !== airLinesOwner.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to view this airline"
+            })
+        }
+        return res.status(200).json({
+            success: true,
+            message: "Airline retrieved successfully",
+            airline: isAirlineExist,
+            airlineOwner: isOwnerExist.firstName + " " + isOwnerExist.lastName
+        })
     } catch (error) {
         return res.status(500).json({
             success: false,

@@ -22,8 +22,8 @@ const userSchema = new mongoose.Schema<IUser>({
     },
     role: {
         type: String,
-        enum: ['admin', 'airline', 'customer'],
-        default: 'customer',
+        enum: ['admin', 'airlineOwner', 'customer'],
+        default: 'airlineOwner',
     } 
 }, {timestamps: true})
 

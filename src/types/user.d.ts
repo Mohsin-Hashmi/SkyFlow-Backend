@@ -4,7 +4,7 @@ export interface IUser {
   lastName: string;
   email: string;
   password: string;
-  role: 'admin' | 'airline' | 'customer';
+  role: 'admin' | 'airlineOwner' | 'customer';
   createdAt?: string;
   updatedAt?: string;
 }
