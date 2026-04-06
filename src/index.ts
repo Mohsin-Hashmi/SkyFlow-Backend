@@ -12,7 +12,6 @@ const PORT = process.env.PORT || 4000;
 // =========== Middleware =========== //
 app.use(cookieparser());
 app.use(express.json());
-``
 // =========== Routes =========== //
 app.use('/auth', authRouter);
 app.use('/airline', airLineRouter);

@@ -121,27 +121,27 @@ export const getAirlineById = async (req: Request, res: Response) => {
         }
 
         const isOwnerExist = await User.findById(airLinesOwner).lean();
-        if(!isOwnerExist) {
+        if (!isOwnerExist) {
             return res.status(404).json({
                 success: false,
                 message: 'User not found'
             })
         }
 
-        if(!airlineId) {
+        if (!airlineId) {
             return res.status(400).json({
                 success: false,
                 message: "Airline ID is required to fetch airline"
             })
         }
         const isAirlineExist = await Airline.findById(airlineId).lean();
-        if(!isAirlineExist){
+        if (!isAirlineExist) {
             return res.status(404).json({
                 success: false,
-                message : "Airline not found"
+                message: "Airline not found"
             })
         }
-        if(isAirlineExist.createdBy.toString() !== airLinesOwner.toString()) {
+        if (isAirlineExist.createdBy.toString() !== airLinesOwner.toString()) {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to view this airline"
@@ -157,6 +157,106 @@ export const getAirlineById = async (req: Request, res: Response) => {
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",
+        })
+    }
+}
+
+
+export const deleteAirlineById = async (req: Request, res: Response) => {
+    try {
+        const airLinesOwner = req.user?._id;
+        const airlineId = req.params.id;
+        if (!airLinesOwner) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required to delete airline"
+            })
+        }
+        const isValidOwner = await User.findById(airLinesOwner).lean();
+        if (!isValidOwner) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            })
+        }
+        const isAirlineExist = await Airline.findById(airlineId);
+        if (!isAirlineExist) {
+            return res.status(404).json({
+                success: false,
+                message: "Airline not found"
+            })
+        }
+        if (isAirlineExist.createdBy.toString() !== airLinesOwner.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to delete this airline"
+            })
+        }
+        const deletedAirline = await Airline.findByIdAndDelete(airlineId);
+        return res.status(200).json({
+            success: true,
+            message: "Airline deleted successfully",
+            deletedAirline: deletedAirline
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        })
+    }
+}
+
+
+export const updateAirLineById = async (req: Request, res: Response) => {
+    try {
+        const airLinesOwner = req.user?._id;
+        const airlineId = req.params.id;
+        const { name, code, logo, country, contactEmail, contactPhone, address, isActive } = req.body;
+        if (!airLinesOwner) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required to update airline"
+            })
+        }
+        const isValidOwner = await User.findById(airLinesOwner).lean();
+        if (!isValidOwner) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            })
+        }
+        const isAirlineExist = await Airline.findById(airlineId).lean();
+        if (!isAirlineExist) {
+            return res.status(404).json({
+                success: false,
+                message: "Airline not found"
+            })
+        }
+        if (isAirlineExist.createdBy.toString() !== airLinesOwner.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to update this airline"
+            })
+        }
+        const updatedAirline = await Airline.findByIdAndUpdate(airlineId, {
+            name: name,
+            code: code,
+            logo: logo,
+            country: country,
+            contactEmail: contactEmail,
+            contactPhone: contactPhone,
+            address: address,
+            isActive: isActive
+        }, { new: true });
+        return res.status(200).json({
+            success: true,
+            message: "Airline updated successfully",
+            updatedAirline: updatedAirline
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
         })
     }
 }
