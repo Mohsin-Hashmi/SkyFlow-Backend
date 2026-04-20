@@ -4,6 +4,7 @@ dotenv.config();
 import { connectDB } from "./config/db-connection";
 import { authRouter } from "./routes/auth/auth.routes";
 import { airLineRouter } from "./routes/airline/airline.routes";
+import { flightRouter } from "./routes/flight/flight.routes";
 import cookieparser from 'cookie-parser';
 
 const app: Application = express();
@@ -15,6 +16,7 @@ app.use(express.json());
 // =========== Routes =========== //
 app.use('/auth', authRouter);
 app.use('/airline', airLineRouter);
+app.use('/flight', flightRouter);
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World!');
