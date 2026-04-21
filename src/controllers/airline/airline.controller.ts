@@ -84,7 +84,6 @@ export const getAirlines = async (req: Request, res: Response) => {
             })
 
         }
-
         const isOwnerExist = await User.findById(airLinesOwner).lean();
         if (!isOwnerExist) {
             return res.status(404).json({

@@ -10,7 +10,12 @@ export const baseUserSchema = z.object({
 export const createUserSchema = z.object({
     body: baseUserSchema
 });
-
+export const loginUserSchema = z.object({
+    body: z.object({
+        email: z.string().email("Invalid email address"),
+        password: z.string().min(6, "Password must be at least 6 characters long")
+    })
+});
 export const updateUserSchema = z.object({
     params: z.object({
         id: z.string()

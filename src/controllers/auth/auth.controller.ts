@@ -16,20 +16,7 @@ export const register = async (req: Request, res: Response) => {
                 message: "All fields are required"
             });
         }
-        if (!Validator.isEmail(email)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid email format"
-            });
-        }
-        if (Validator.isEmpty(password) || !Validator.isLength(password, { min: 6 })) {
-            return res.status(400).json({
-                success: false,
-                message: "Password must be at least 6 characters long"
-            });
-        }
         const HASHED_PASSWORD = await bcrypt.hash(password, 10);
-
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({
@@ -42,7 +29,6 @@ export const register = async (req: Request, res: Response) => {
             lastName,
             email,
             password: HASHED_PASSWORD
-
         });
         return res.status(201).json({
             success: true,
@@ -65,12 +51,6 @@ export const login = async (req: Request, res: Response) => {
             return res.status(400).json({
                 success: false,
                 message: "Email and password are required"
-            })
-        }
-        if (!Validator.isEmail(email)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid email format"
             })
         }
         const isUserExist = await User.findOne({ email });
