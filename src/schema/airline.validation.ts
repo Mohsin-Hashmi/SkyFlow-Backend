@@ -14,7 +14,6 @@ export const baseAirlineSchema = z.object({
 
 export const createAirlineSchema = baseAirlineSchema;
 
-export const updateAirlineSchema = baseAirlineSchema.partial().extend({
+export const updateAirlineSchema = baseAirlineSchema.partial().omit({ createdBy: true }).extend({
     code: z.string().regex(/^[A-Z]{2}$/, 'Airline code must be 2 uppercase letters').optional(),
-    createdBy: z.string().optional(),
 });

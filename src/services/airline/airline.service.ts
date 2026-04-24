@@ -3,8 +3,8 @@ import {
     getAirlines,
     getAirlineById,
     deleteAirlineById,
-    updateAirLineById
+    updateAirlineById
     
 } from "../../controllers/airline/airline.controller";
 
-export { createAirline, getAirlines, getAirlineById, deleteAirlineById, updateAirLineById };
+export { createAirline, getAirlines, getAirlineById, deleteAirlineById, updateAirlineById };

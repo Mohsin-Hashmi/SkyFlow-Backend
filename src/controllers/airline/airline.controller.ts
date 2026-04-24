@@ -181,7 +181,7 @@ export const deleteAirlineById = async (req: Request, res: Response) => {
 }
 
 
-export const updateAirLineById = async (req: Request, res: Response) => {
+export const updateAirlineById = async (req: Request, res: Response) => {
     try {
         const airLinesOwner = req.user?._id;
         const airlineId = req.params.id;
