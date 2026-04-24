@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 dotenv.config();
 import { User } from "../../models/user";
 import { IUser } from "../../types/user";
-import * as Validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 export const register = async (req: Request, res: Response) => {

@@ -12,9 +12,6 @@ export const createAirline = async (req: Request, res: Response) => {
                 message: "Only airline owners can create airlines"
             });
         }
-        const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-        const addressRegex = /^[a-zA-Z0-9\s,'-]*$/;
-
         if (!createdBy) {
             return res.status(400).json({
                 success: false,
@@ -34,28 +31,6 @@ export const createAirline = async (req: Request, res: Response) => {
                 message: "Name, code, country and contact email are required"
             })
         }
-
-        if (contactPhone && !phoneRegex.test(contactPhone)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid contact phone number format"
-            })
-        }
-
-        if (address && !addressRegex.test(address)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid address format"
-            })
-        }
-
-        if (address.length < 10 || address.length > 100) {
-            return res.status(400).json({
-                success: false,
-                message: "Address must be between 10 and 100 characters"
-            })
-        }
-
         const newAirline = await Airline.create({
             name, code, logo, country, contactEmail, contactPhone, address, isActive, createdBy
         })
