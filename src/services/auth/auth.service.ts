@@ -1,3 +1,3 @@
-import { register, login, logout, getProfile } from "../../controllers/auth/auth.controller";
+import { register, login, logout, getProfile, forgotPassword } from "../../controllers/auth/auth.controller";
 
-export { register, login, logout, getProfile };
+export { register, login, logout, getProfile, forgotPassword };

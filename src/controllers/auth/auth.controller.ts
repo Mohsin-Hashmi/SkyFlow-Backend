@@ -6,6 +6,8 @@ import { User } from "../../models/user";
 import { IUser } from "../../types/user";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { success } from "zod";
+
 export const register = async (req: Request, res: Response) => {
     try {
         const { firstName, lastName, email, password } = req.body;
@@ -142,3 +144,52 @@ export const getProfile = async (req: Request, res: Response) => {
         })
     }
 }
+
+export const forgotPassword = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?._id;
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "Not authenticated"
+            })
+        }
+        const isUserExist = await User.findById(userId);
+        if (!isUserExist) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+        const { email } = isUserExist;
+
+        const { newPassword, confirmPassword } = req.body;
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Passwords do not match"
+            });
+        }
+        const HASHED_NEW_PASSWORD = await bcrypt.hash(newPassword, 10);
+        const updatedUserPassword = await User.findByIdAndUpdate(userId, {
+            password: HASHED_NEW_PASSWORD
+        });
+        if (!updatedUserPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Failed to update password"
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: "Password updated successfully for user with email: " + email,
+            user: updatedUserPassword
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        })
+    }
+}
+

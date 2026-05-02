@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema<IUser>({
         required: true,
         minlength: 6,
     },
+    newPassword: {
+        type: String,
+        minlength: 6,
+    },
     role: {
         type: String,
         enum: ['admin', 'airlineOwner', 'customer'],

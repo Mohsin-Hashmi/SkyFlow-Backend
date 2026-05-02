@@ -5,13 +5,13 @@ import { connectDB } from "./config/db-connection";
 import { authRouter } from "./routes/auth/auth.routes";
 import { airLineRouter } from "./routes/airline/airline.routes";
 import { flightRouter } from "./routes/flight/flight.routes";
-import cookieparser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 
 const app: Application = express();
 const PORT = process.env.PORT || 4000;
 
 // =========== Middleware =========== //
-app.use(cookieparser());
+app.use(cookieParser());
 app.use(express.json());
 // =========== Routes =========== //
 app.use('/auth', authRouter);

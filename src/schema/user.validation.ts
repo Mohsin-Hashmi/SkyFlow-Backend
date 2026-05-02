@@ -4,6 +4,7 @@ export const baseUserSchema = z.object({
     lastName: z.string().min(1, "Last name is required"),
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters long"),
+    newPassword: z.string().min(6, "New password must be at least 6 characters long").optional(),
     role: z.enum(['admin', 'airlineOwner', 'customer']).default('airlineOwner')
 });
 
@@ -21,4 +22,10 @@ export const updateUserSchema = z.object({
         id: z.string()
     }),
     body: baseUserSchema.partial()
+});
+
+export const forgotPasswordSchema = z.object({
+    body: z.object({
+        newPassword: z.string().min(6, "New password must be at least 6 characters long")
+    })
 });
