@@ -3,11 +3,12 @@ import { createAirline, getAirlines, getAirlineById, deleteAirlineById, updateAi
 import { authenticate } from '../../middleware/auth.middleware';
 import { createAirlineSchema, updateAirlineSchema } from '../../schema/airline.validation';
 import { validate } from '../../middleware/validate.middleware';
+import { checkPermission } from '../../middleware/check-permission.middleware';
 export const airLineRouter = express.Router();
 
-airLineRouter.post('/create-airline', authenticate, validate(createAirlineSchema), createAirline);
-airLineRouter.get('/get-airlines', authenticate, getAirlines);
-airLineRouter.get('/get-airline/:id', authenticate, getAirlineById);
-airLineRouter.delete('/delete-airline/:id', authenticate, deleteAirlineById);
-airLineRouter.put('/update-airline/:id', authenticate, validate(updateAirlineSchema), updateAirlineById);
+airLineRouter.post('/create-airline', validate(createAirlineSchema), authenticate, checkPermission('airlines', 'create'), createAirline);
+airLineRouter.get('/get-airlines', authenticate, checkPermission('airlines', 'read'), getAirlines);
+airLineRouter.get('/get-airline/:id', authenticate, checkPermission('airlines', 'read'), getAirlineById);
+airLineRouter.delete('/delete-airline/:id', authenticate, checkPermission('airlines', 'delete'), deleteAirlineById);
+airLineRouter.put('/update-airline/:id', authenticate, validate(updateAirlineSchema), checkPermission('airlines', 'update'), updateAirlineById);
 
