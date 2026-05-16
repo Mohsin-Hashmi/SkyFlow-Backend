@@ -4,21 +4,14 @@ import { User } from "../../models/user";
 export const createAirline = async (req: Request, res: Response) => {
     try {
         const { name, code, logo, country, contactEmail, contactPhone, address, isActive } = req.body;
-        const createdBy = req.user?._id;
-        const createdByRole = req.user?.role;
-        if (createdByRole !== 'airlineOwner') {
-            return res.status(403).json({
-                success: false,
-                message: "Only airline owners can create airlines"
-            });
-        }
-        if (!createdBy) {
+        const user = req.user?._id;
+        if (!user) {
             return res.status(400).json({
                 success: false,
                 message: "User ID is required to create an airline"
             });
         }
-        const isUserExist = await User.findById(createdBy).lean();
+        const isUserExist = await User.findById(user).lean();
         if (!isUserExist) {
             return res.status(404).json({
                 success: false,
@@ -32,7 +25,7 @@ export const createAirline = async (req: Request, res: Response) => {
             })
         }
         const newAirline = await Airline.create({
-            name, code, logo, country, contactEmail, contactPhone, address, isActive, createdBy
+            name, code, logo, country, contactEmail, contactPhone, address, isActive
         })
 
         return res.status(201).json({
@@ -51,15 +44,15 @@ export const createAirline = async (req: Request, res: Response) => {
 
 export const getAirlines = async (req: Request, res: Response) => {
     try {
-        const airLinesOwner = req.user?._id;
-        if (!airLinesOwner) {
+        const user = req.user?._id;
+        if (!user) {
             return res.status(400).json({
                 success: false,
                 message: "User ID is required to fetch airlines"
             })
 
         }
-        const isOwnerExist = await User.findById(airLinesOwner).lean();
+        const isOwnerExist = await User.findById(user).lean();
         if (!isOwnerExist) {
             return res.status(404).json({
                 success: false,
@@ -68,7 +61,7 @@ export const getAirlines = async (req: Request, res: Response) => {
         }
 
         const getAllAirlinesOfOwner = await Airline.find({
-            createdBy: airLinesOwner
+            createdBy: user
         })
         return res.status(200).json({
             success: true,
@@ -85,16 +78,16 @@ export const getAirlines = async (req: Request, res: Response) => {
 
 export const getAirlineById = async (req: Request, res: Response) => {
     try {
-        const airLinesOwner = req.user?._id;
+        const user = req.user?._id;
         const airlineId = req.params.id;
-        if (!airLinesOwner) {
+        if (!user) {
             return res.status(400).json({
                 success: false,
                 message: "User ID is required to fetch airline"
             })
         }
 
-        const isOwnerExist = await User.findById(airLinesOwner).lean();
+        const isOwnerExist = await User.findById(user).lean();
         if (!isOwnerExist) {
             return res.status(404).json({
                 success: false,
@@ -115,7 +108,7 @@ export const getAirlineById = async (req: Request, res: Response) => {
                 message: "Airline not found"
             })
         }
-        if (isAirlineExist.createdBy.toString() !== airLinesOwner.toString()) {
+        if (isAirlineExist.createdBy.toString() !== user.toString()) {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to view this airline"
@@ -138,15 +131,15 @@ export const getAirlineById = async (req: Request, res: Response) => {
 
 export const deleteAirlineById = async (req: Request, res: Response) => {
     try {
-        const airLinesOwner = req.user?._id;
+        const user = req.user?._id;
         const airlineId = req.params.id;
-        if (!airLinesOwner) {
+        if (!user) {
             return res.status(400).json({
                 success: false,
                 message: "User ID is required to delete airline"
             })
         }
-        const isValidOwner = await User.findById(airLinesOwner).lean();
+        const isValidOwner = await User.findById(user).lean();
         if (!isValidOwner) {
             return res.status(404).json({
                 success: false,
@@ -160,7 +153,7 @@ export const deleteAirlineById = async (req: Request, res: Response) => {
                 message: "Airline not found"
             })
         }
-        if (isAirlineExist.createdBy.toString() !== airLinesOwner.toString()) {
+        if (isAirlineExist.createdBy.toString() !== user.toString()) {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to delete this airline"
@@ -183,16 +176,16 @@ export const deleteAirlineById = async (req: Request, res: Response) => {
 
 export const updateAirlineById = async (req: Request, res: Response) => {
     try {
-        const airLinesOwner = req.user?._id;
+        const user = req.user?._id;
         const airlineId = req.params.id;
         const { name, code, logo, country, contactEmail, contactPhone, address, isActive } = req.body;
-        if (!airLinesOwner) {
+        if (!user) {
             return res.status(400).json({
                 success: false,
                 message: "User ID is required to update airline"
             })
         }
-        const isValidOwner = await User.findById(airLinesOwner).lean();
+        const isValidOwner = await User.findById(user).lean();
         if (!isValidOwner) {
             return res.status(404).json({
                 success: false,
@@ -206,7 +199,7 @@ export const updateAirlineById = async (req: Request, res: Response) => {
                 message: "Airline not found"
             })
         }
-        if (isAirlineExist.createdBy.toString() !== airLinesOwner.toString()) {
+        if (isAirlineExist.createdBy.toString() !== user.toString()) {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to update this airline"
