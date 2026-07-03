@@ -5,7 +5,9 @@ export interface IFlight extends Document {
     flightNumber: string;
     airline: mongoose.Types.ObjectId;
     origin: string;
+    departure: string;
     destination: string;
+    arrival: string;
     departureTime: Date;
     arrivalTime: Date;
     duration: number; // in minutes

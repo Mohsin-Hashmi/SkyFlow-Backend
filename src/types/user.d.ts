@@ -10,4 +10,4 @@ export interface IUser {
   updatedAt?: string;
 }
 
-export {};
+
