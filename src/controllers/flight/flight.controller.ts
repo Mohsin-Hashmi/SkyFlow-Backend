@@ -8,7 +8,7 @@ import { success } from "zod";
 export const createFlight = async (req: Request, res: Response) => {
     try {
         const { flightNumber, origin, destination, departure, arrival, departureTime, arrivalTime, duration, price, totalSeats, availableSeats } = req.body;
-        if (!flightNumber || !origin || !destination || !departure || !arrival || !departureTime || !arrivalTime || !duration || !price || !totalSeats || !availableSeats ) {
+        if (!flightNumber || !origin || !destination || !departure || !arrival || !departureTime || !arrivalTime || !duration || !price || !totalSeats || !availableSeats) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
@@ -16,7 +16,7 @@ export const createFlight = async (req: Request, res: Response) => {
         }
         const airlineId = req.params.airlineId;
         const userId = req.user?._id;
-        if(!userId) {
+        if (!userId) {
             return res.status(403).json({
                 success: false,
                 message: 'Unauthorized: No user found'
@@ -24,7 +24,7 @@ export const createFlight = async (req: Request, res: Response) => {
         }
 
         const isUserExist = await User.findById(userId).lean();
-        if(!isUserExist) {
+        if (!isUserExist) {
             return res.status(404).json({
                 success: false,
                 message: 'User not found'
@@ -46,19 +46,19 @@ export const createFlight = async (req: Request, res: Response) => {
         }
 
         const newFlight = await Flight.create({
-           flightNumber: flightNumber,
-           airline: isAirlineExist._id,
-           origin: origin,
-           destination: destination,
-           departure: departure,
-           arrival: arrival,
-           departureTime: departureTime,
-           arrivalTime: arrivalTime,
-           price: price,
-           totalSeats: totalSeats,
-           availableSeats: availableSeats,
-           duration: duration,
-           createdBy: isUserExist._id
+            flightNumber: flightNumber,
+            airline: isAirlineExist._id,
+            origin: origin,
+            destination: destination,
+            departure: departure,
+            arrival: arrival,
+            departureTime: departureTime,
+            arrivalTime: arrivalTime,
+            price: price,
+            totalSeats: totalSeats,
+            availableSeats: availableSeats,
+            duration: duration,
+            createdBy: isUserExist._id
         })
 
         return res.status(201).json({
@@ -77,10 +77,10 @@ export const createFlight = async (req: Request, res: Response) => {
 
 
 export const getAllFlights = async (req: Request, res: Response) => {
-    try{
+    try {
 
         const userId = req.user?._id;
-        if(!userId) {
+        if (!userId) {
             return res.status(403).json({
                 success: false,
                 message: 'Unauthorized: No user found'
@@ -88,13 +88,13 @@ export const getAllFlights = async (req: Request, res: Response) => {
         }
 
         const isUserExist = await User.findById(userId).lean();
-        if(!isUserExist) {
+        if (!isUserExist) {
             return res.status(404).json({
                 success: false,
                 message: 'User not found'
             })
         }
-           
+
         const flights = await Flight.find().populate('airline').lean();
         return res.status(200).json({
             success: true,
@@ -102,6 +102,98 @@ export const getAllFlights = async (req: Request, res: Response) => {
             flights: flights
         })
 
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+        })
+    }
+}
+
+export const getFlightById = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?._id;
+        const flightId = req.params.flightId;
+        if (!userId) {
+            return res.status(403).json({
+                success: false,
+                message: 'Unauthorized: No user found'
+            })
+        }
+        const isUserExist = await User.findById(userId).lean();
+        if (!isUserExist) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            })
+        }
+        if (!flightId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Flight ID is required to fetch flight details'
+            })
+        }
+
+        const isFlightExist = await Flight.findById(flightId).populate('airline');
+        if (!isFlightExist) {
+            return res.status(404).json({
+                success: false,
+                message: 'Flight not found'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Flight fetched successfully',
+            flight: isFlightExist
+        })
+
+
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+        })
+    }
+}
+
+export const deleteFlightById = async (req: Request, res: Response) => {
+    try{
+        const userId = req.user?._id;
+        const flightId = req.params.flightId;
+        if(!userId){
+            return res.status(403).json({
+                success: false,
+                message: 'Unauthorized: No user found'
+            })
+        }
+        if(!flightId){
+            return res.status(400).json({
+                success: false,
+                message: 'Flight ID is required to delete flight'
+            })
+        }
+        const isUserExist = await User.findById(userId).lean();
+        if(!isUserExist){
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            })
+        }
+        const isFlightExist = await Flight.findById(flightId).lean();
+        if(!isFlightExist){
+            return res.status(404).json({
+                success: false,
+                message: 'Flight not found'
+            })
+        }
+        const deletedFlight = await Flight.findByIdAndDelete(flightId);
+        return res.status(200).json({
+            success: true,
+            message: 'Flight deleted successfully',
+            flight: deletedFlight
+        });
     }catch(err){
         return res.status(500).json({
             success: false,
@@ -110,4 +202,27 @@ export const getAllFlights = async (req: Request, res: Response) => {
     }
 }
 
-
+export const updateFlightById = async (req: Request, res: Response) => {
+    try{
+        const userId = req.user?._id;
+        const flightId = req.params.flightId;
+        if(!userId){
+            return res.status(403).json({
+                success: false,
+                message: 'Unauthorized: No user found'
+            })
+        }
+        if(!flightId){
+            return res.status(400).json({
+                success: false,
+                message: 'Flight ID is required to update flight'
+            })
+        }
+        // to be continued with the update logic for the flight
+    }catch(err){
+        return res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+        })
+    }
+}
