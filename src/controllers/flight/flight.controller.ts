@@ -159,30 +159,30 @@ export const getFlightById = async (req: Request, res: Response) => {
 }
 
 export const deleteFlightById = async (req: Request, res: Response) => {
-    try{
+    try {
         const userId = req.user?._id;
         const flightId = req.params.flightId;
-        if(!userId){
+        if (!userId) {
             return res.status(403).json({
                 success: false,
                 message: 'Unauthorized: No user found'
             })
         }
-        if(!flightId){
+        if (!flightId) {
             return res.status(400).json({
                 success: false,
                 message: 'Flight ID is required to delete flight'
             })
         }
         const isUserExist = await User.findById(userId).lean();
-        if(!isUserExist){
+        if (!isUserExist) {
             return res.status(404).json({
                 success: false,
                 message: 'User not found'
             })
         }
         const isFlightExist = await Flight.findById(flightId).lean();
-        if(!isFlightExist){
+        if (!isFlightExist) {
             return res.status(404).json({
                 success: false,
                 message: 'Flight not found'
@@ -194,7 +194,7 @@ export const deleteFlightById = async (req: Request, res: Response) => {
             message: 'Flight deleted successfully',
             flight: deletedFlight
         });
-    }catch(err){
+    } catch (err) {
         return res.status(500).json({
             success: false,
             message: 'Internal Server Error',
@@ -203,23 +203,56 @@ export const deleteFlightById = async (req: Request, res: Response) => {
 }
 
 export const updateFlightById = async (req: Request, res: Response) => {
-    try{
+    try {
         const userId = req.user?._id;
         const flightId = req.params.flightId;
-        if(!userId){
+        const { flightNumber, origin, destination, departure, arrival, departureTime, arrivalTime, duration, price, totalSeats, availableSeats } = req.body;
+        if (!userId) {
             return res.status(403).json({
                 success: false,
                 message: 'Unauthorized: No user found'
             })
         }
-        if(!flightId){
+        if (!flightId) {
             return res.status(400).json({
                 success: false,
                 message: 'Flight ID is required to update flight'
             })
         }
         // to be continued with the update logic for the flight
-    }catch(err){
+        const isUserExist = await User.findById(userId).lean();
+        if (!isUserExist) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            })
+        }
+        const isFlightExist = await Flight.findById(flightId).lean();
+        if (!isFlightExist) {
+            return res.status(404).json({
+                success: false,
+                message: 'Flight not found'
+            })
+        }
+        const updatedFlight = await Flight.findByIdAndUpdate(flightId, {
+            flightNumber: flightNumber || isFlightExist.flightNumber,
+            origin: origin || isFlightExist.origin,
+            destination: destination || isFlightExist.destination,
+            departure: departure || isFlightExist.departure,
+            arrival: arrival || isFlightExist.arrival,
+            departureTime: departureTime || isFlightExist.departureTime,
+            arrivalTime: arrivalTime || isFlightExist.arrivalTime,
+            duration: duration || isFlightExist.duration,
+            price: price || isFlightExist.price,
+            totalSeats: totalSeats || isFlightExist.totalSeats,
+            availableSeats: availableSeats || isFlightExist.availableSeats
+        }, { new: true });
+        return res.status(200).json({
+            success: true,
+            message: 'Flight updated successfully',
+            flight: updatedFlight
+        });
+    } catch (err) {
         return res.status(500).json({
             success: false,
             message: 'Internal Server Error',
